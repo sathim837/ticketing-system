@@ -2,12 +2,16 @@ import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
 import sequelize from "./config/database.js";
+import userRoutes from "./routes/userRoute.js";
+import {errorHandler} from "./middlewares/errorHandler.js";
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/users", userRoutes);
 
 app.get('/health', (req, res) => {
 
@@ -18,6 +22,8 @@ app.get('/health', (req, res) => {
     });
 
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
