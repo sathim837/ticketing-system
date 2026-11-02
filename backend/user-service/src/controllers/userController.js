@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import { AppError } from "../utils/AppError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { genearteToken } from "../utils/jwt.js";
 
 const registerUser = async (req, res, next) => {
   try {
@@ -37,4 +38,39 @@ const registerUser = async (req, res, next) => {
   }
 };
 
-export { registerUser };
+const loginUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    const checkUser = await User.findOne({
+      where: { email },
+    });
+    if (!checkUser) {
+      throw new AppError("Email is not registered", 400);
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, checkUser.password);
+    if(!isPasswordValid)
+    {
+      throw new AppError("Password does not matched", 400);
+    }
+
+    const token = genearteToken(checkUser);
+
+
+    const response = new ApiResponse(200, "User logged in successfully", {
+      id : checkUser.id,
+      name : checkUser.name,
+      email : checkUser.email,
+      role : checkUser.role,
+      token : token
+    });
+
+    return res.status(response.statusCode).json(response);
+  } catch (error) {
+    
+    return next(error);
+  }
+};
+
+export { registerUser, loginUser };
