@@ -50,27 +50,45 @@ const loginUser = async (req, res, next) => {
     }
 
     const isPasswordValid = await bcrypt.compare(password, checkUser.password);
-    if(!isPasswordValid)
-    {
+    if (!isPasswordValid) {
       throw new AppError("Password does not matched", 400);
     }
 
     const token = genearteToken(checkUser);
 
-
     const response = new ApiResponse(200, "User logged in successfully", {
-      id : checkUser.id,
-      name : checkUser.name,
-      email : checkUser.email,
-      role : checkUser.role,
-      token : token
+      id: checkUser.id,
+      name: checkUser.name,
+      email: checkUser.email,
+      role: checkUser.role,
+      token: token,
     });
 
     return res.status(response.statusCode).json(response);
   } catch (error) {
-    
     return next(error);
   }
 };
 
-export { registerUser, loginUser };
+const getUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ["password","createdAt","updatedAt"] },
+    });
+    if (!user) {
+      throw new AppError("User not found", 400);
+    }
+
+    const response = new ApiResponse(
+      200,
+      "User profile fetched successfully",
+      user,
+    );
+
+    return res.status(response.statusCode).json(response);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export { registerUser, loginUser, getUserProfile };
