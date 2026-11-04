@@ -16,3 +16,7 @@ export const createTicketSchema = z.object({
     .enum(["LOW", "MEDIUM", "HIGH", "URGENT"])
     .optional()
 });
+
+export const updateTicketStatusSchema = z.object({
+  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]),
+});

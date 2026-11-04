@@ -5,6 +5,7 @@ const getAdmins = async () => {
     const response = await userServiceClient.get("api/users/internal/admins");
 
     return response.data.data;
+    
   } catch (error) {
     console.error("Failed to fetch admins from User Service:", error.message);
 

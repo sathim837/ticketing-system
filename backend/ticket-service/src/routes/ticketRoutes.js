@@ -1,9 +1,9 @@
 import express from "express";
 import { authenticateUser } from "../middlewares/authMiddleware.js";
 import { authorizeRoles } from "../middlewares/authorizeRoles.js";
-import { createTicket } from "../controllers/ticketController.js";
+import { createTicket, getMyTickets, getMyTicketById, updateTicketStatus } from "../controllers/ticketController.js";
 import { validate } from "../middlewares/validate.js";
-import { createTicketSchema } from "../validators/ticketValidator.js";
+import { createTicketSchema, updateTicketStatusSchema } from "../validators/ticketValidator.js";
 
 const router = express.Router();
 
@@ -13,6 +13,26 @@ router.post(
   authenticateUser,
   validate(createTicketSchema),
   createTicket
+);
+
+router.get(
+  "/my-tickets",
+  authenticateUser,
+  getMyTickets
+);
+
+router.get(
+  "/my-tickets/:id",
+  authenticateUser,
+  getMyTicketById
+);
+
+router.patch(
+  "/my-tickets/:id",
+  authenticateUser,
+  authorizeRoles("ADMIN"),
+  validate(updateTicketStatusSchema),
+  updateTicketStatus
 );
 
 export default router;
