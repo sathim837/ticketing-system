@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import sequelize from "./config/database.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
+import ticketRoutes from "./routes/ticketRoutes.js";
+import { authenticateUser } from "./middlewares/authMiddleware.js";
 
 dotenv.config();
 
@@ -18,6 +21,18 @@ app.get('/health', (req, res) => {
     });
 
 });
+
+app.get("/protected", authenticateUser, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Authentication successful",
+    user: req.user,
+  });
+});
+
+app.use("/api/tickets", ticketRoutes);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
