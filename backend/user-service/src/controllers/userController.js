@@ -73,7 +73,7 @@ const loginUser = async (req, res, next) => {
 const getUserProfile = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ["password","createdAt","updatedAt"] },
+      attributes: { exclude: ["password", "createdAt", "updatedAt"] },
     });
     if (!user) {
       throw new AppError("User not found", 400);
@@ -91,4 +91,20 @@ const getUserProfile = async (req, res, next) => {
   }
 };
 
-export { registerUser, loginUser, getUserProfile };
+const getAdmins = async (req, res, next) => {
+  try {
+    const admins = await User.findAll({
+      where: { role: "ADMIN" },
+      attributes: ["id", "name", "email"],
+      order: [["id", "ASC"]],
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Admins list fetched sucessfully", admins));
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export { registerUser, loginUser, getUserProfile, getAdmins };

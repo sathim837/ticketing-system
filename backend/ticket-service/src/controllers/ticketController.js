@@ -1,16 +1,18 @@
 import Ticket from "../models/Ticket.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { assignTicketToAdmin } from "../services/ticketAssignmentService.js";
 
 const createTicket = async (req, res) => {
   try {
     const { title, description, priority } = req.body;
+    const assignedTo = await assignTicketToAdmin();
 
     const ticket = await Ticket.create({
       title,
       description,
       priority : priority || "MEDIUM",
       userId: req.user.id,
-      assignedTo: null,
+      assignedTo: assignedTo,
     });
 
     return res
