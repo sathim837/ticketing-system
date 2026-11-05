@@ -26,12 +26,26 @@ const createTicket = async (req, res) => {
 
 const getMyTickets = async (req, res, next) => {
   try {
+
+    const { status, priority } = req.query;
+
     let where = {};
 
     if (req.user.role == "USER") {
       where.userId = req.user.id;
     } else if (req.user.role == "ADMIN") {
       where.assignedTo = req.user.id;
+    }
+
+    if(status)
+    {
+      where.status = status;
+    }
+
+    if(priority)
+    {
+      where.priority = priority;
+      
     }
 
     const tickets = await Ticket.findAll({

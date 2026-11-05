@@ -3,7 +3,7 @@ import { authenticateUser } from "../middlewares/authMiddleware.js";
 import { authorizeRoles } from "../middlewares/authorizeRoles.js";
 import { createTicket, getMyTickets, getMyTicketById, updateTicketStatus } from "../controllers/ticketController.js";
 import { validate } from "../middlewares/validate.js";
-import { createTicketSchema, updateTicketStatusSchema } from "../validators/ticketValidator.js";
+import { createTicketSchema, updateTicketStatusSchema, ticketFilterSchema } from "../validators/ticketValidator.js";
 
 const router = express.Router();
 
@@ -18,6 +18,7 @@ router.post(
 router.get(
   "/my-tickets",
   authenticateUser,
+  validate(ticketFilterSchema, "query"),
   getMyTickets
 );
 

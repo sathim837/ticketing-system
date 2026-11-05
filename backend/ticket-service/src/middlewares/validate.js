@@ -1,7 +1,9 @@
 import { AppError } from "../utils/AppError.js";
 
-export const validate = (schema) => (req, res, next) => {
-  const result = schema.safeParse(req.body);
+export const validate = (schema, source = "body") => (req, res, next) => {
+  // const result = schema.safeParse(req.body);
+   const result = schema.safeParse(req[source]);
+
 
   if (!result.success) {
     const message = result.error.issues
@@ -11,7 +13,11 @@ export const validate = (schema) => (req, res, next) => {
     return next(new AppError(message, 400));
   }
 
-  req.body = result.data;
+  // req.body = result.data;
+  // req[source] = result.data;
+   if (source === "body") {
+    req.body = result.data;
+  }
 
   next();
 };
