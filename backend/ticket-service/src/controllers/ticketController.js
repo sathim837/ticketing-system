@@ -27,7 +27,9 @@ const createTicket = async (req, res) => {
 const getMyTickets = async (req, res, next) => {
   try {
 
-    const { status, priority } = req.query;
+    const { status, priority, page = 1, limit = 10 } = req.query;
+
+    const offset = (page - 1) * limit;
 
     let where = {};
 
@@ -45,17 +47,31 @@ const getMyTickets = async (req, res, next) => {
     if(priority)
     {
       where.priority = priority;
-      
+
     }
 
-    const tickets = await Ticket.findAll({
+    const { count, rows: tickets } = await Ticket.findAndCountAll({
       where,
+      limit,
+      offset,
       order: [["createdAt", "DESC"]],
     });
 
     return res
       .status(200)
-      .json(new ApiResponse(200, "Tickets fetched successfully", tickets));
+      .json(new ApiResponse(
+        200, 
+        "Tickets fetched successfully", 
+        {
+        tickets,
+        pagination : {
+          totalTickets : count,
+          currentPage : page,
+          totalPages : Math.ceil(count/limit) ,
+          limit
+        }
+      }
+      ));
   } catch (error) {
     return next(error);
   }
