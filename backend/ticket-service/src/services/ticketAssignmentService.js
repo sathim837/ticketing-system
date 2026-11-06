@@ -1,12 +1,25 @@
 import { Op } from "sequelize";
+import sequelize from "../config/database.js";
 import Ticket from "../models/Ticket.js";
 import { getAdmins } from "./adminService.js";
+import AssignmentLock from "../models/AssignmentLock.js";
 
 const MAX_OPEN_TICKETS = 10;
 
-export const assignTicketToAdmin = async () => {
+export const assignTicketToAdmin = async (admins, transaction) => {
+
+  // Acquire the assignment lock
+  const lock = await AssignmentLock.findByPk(1, {
+    transaction,
+    lock: transaction.LOCK.UPDATE,
+  });
+
+  if (!lock) {
+  throw new Error("Assignment lock row not found");
+  }
+
   // 1. Fetch all admins from User Service
-  const admins = await getAdmins();
+  // const admins = await getAdmins();
 
   if (!admins.length) {
     return null;
@@ -22,6 +35,7 @@ export const assignTicketToAdmin = async () => {
             [Op.in]: ["OPEN", "IN_PROGRESS"],
           },
         },
+         transaction,
       });
 
       return {
